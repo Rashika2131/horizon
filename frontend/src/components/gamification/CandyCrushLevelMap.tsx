@@ -19,20 +19,13 @@ import {
 import {
   getPersonaGamificationConfig,
   getPersonaKey,
+  PERSONA_TABS,
   type LevelItem,
 } from '@/data/gamificationLevels'
 import { useGamificationStore } from '@/store/gamificationStore'
 import LevelDetailModal from './LevelDetailModal'
 import LevelQuizModal from './LevelQuizModal'
 import { playBubblePop, toggleMute, isAudioMuted } from '@/utils/soundEffects'
-
-export const PERSONA_TABS = [
-  { key: 'student', label: '🎓 Student / Fresher', desc: 'Campus to ₹8-12 LPA', badge: 'Placement Track' },
-  { key: 'returner', label: '👩‍💼 Break Returner', desc: 'Re-entry at ₹14-18 LPA', badge: 'Zero Penalty' },
-  { key: 'stagnant', label: '💼 Working Stagnant', desc: 'Lead / 45%+ Jump', badge: 'Promotion / Switch' },
-  { key: 'laid_off', label: '⚡ Laid Off (0-Day)', desc: 'Lateral at ₹14-20 LPA', badge: 'Rapid Placement' },
-  { key: 'gig', label: '🛵 Gig Partner', desc: 'Salaried Tech Ops', badge: 'Formal Career' },
-]
 
 interface CandyCrushLevelMapProps {
   userType: string
