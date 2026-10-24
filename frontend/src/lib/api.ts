@@ -41,7 +41,11 @@ export interface TrendsResponse {
   best_fit_roles?: string[]
 }
 
-const RAW_URL = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/$/, '')
+// Sanitize VITE_API_BASE_URL: remove trailing slashes and trailing /api (since endpoints already include /api)
+let RAW_URL = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '')
+if (RAW_URL.endsWith('/api')) {
+  RAW_URL = RAW_URL.slice(0, -4).replace(/\/+$/, '')
+}
 let BASE_URL = RAW_URL
 if (BASE_URL && !BASE_URL.startsWith('http')) {
   BASE_URL = BASE_URL.includes('.') ? `https://${BASE_URL}` : `https://${BASE_URL}.onrender.com`
@@ -49,7 +53,12 @@ if (BASE_URL && !BASE_URL.startsWith('http')) {
 
 async function request<T>(endpoint: string, options?: RequestInit, token?: string): Promise<T> {
   const activeToken = token ?? useAuthStore.getState().token
-  const url = `${BASE_URL}${endpoint}`
+  // Normalize endpoint to prevent /api/api duplicate prefix
+  let cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`
+  if (BASE_URL.endsWith('/api') && cleanEndpoint.startsWith('/api/')) {
+    cleanEndpoint = cleanEndpoint.replace(/^\/api/, '')
+  }
+  const url = `${BASE_URL}${cleanEndpoint}`
   const isFormData = options?.body instanceof FormData
   const headers: Record<string, string> = {
     ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
@@ -87,14 +96,20 @@ async function request<T>(endpoint: string, options?: RequestInit, token?: strin
       }
     }
 
-    let errorDetail = `HTTP ${res.status}: ${res.statusText}`
+    let errorDetail = `HTTP ${res.status}: ${res.statusText || 'Error'}`
     try {
       const errJson = await res.json()
       if (errJson && errJson.detail) {
         errorDetail = typeof errJson.detail === 'string' ? errJson.detail : JSON.stringify(errJson.detail)
       }
     } catch {
-      // ignore json parse error
+      if (res.status === 404) {
+        if (!BASE_URL && typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
+          errorDetail = 'Backend API URL (VITE_API_BASE_URL) is not configured in Render. Set VITE_API_BASE_URL in your Static Site environment variables and "Clear build cache & deploy".'
+        } else {
+          errorDetail = `Backend endpoint not found (404) at ${url}. Please verify your backend web service is deployed and running.`
+        }
+      }
     }
 
     // Never show raw "Not authenticated" to the user
