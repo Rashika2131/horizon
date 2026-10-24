@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { onboardingApi, profileApi } from '@/lib/api'
 import { useProfileStore } from '@/store/profileStore'
 import { useAuthStore } from '@/store/authStore'
@@ -11,6 +10,7 @@ interface UseResumeUploadProps {
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>
   setIsDone: (done: boolean) => void
   setShowConfirmScreen: (show: boolean) => void
+  onUploadSuccess?: () => void
 }
 
 export function useResumeUpload({
@@ -19,11 +19,12 @@ export function useResumeUpload({
   setMessages,
   setIsDone,
   setShowConfirmScreen,
+  onUploadSuccess,
 }: UseResumeUploadProps) {
-  const navigate = useNavigate()
   const authUser = useAuthStore((s) => s.user)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [resumeAnalyzed, setResumeAnalyzed] = useState(false)
 
   const handleFileUpload = async (file: File) => {
     if (!file) return
@@ -50,6 +51,9 @@ export function useResumeUpload({
       if (res.profile_draft) setProfileDraft(res.profile_draft as Record<string, unknown>)
       if (typeof res.can_confirm === 'boolean') setCanConfirm(res.can_confirm)
 
+      setResumeAnalyzed(true)
+      onUploadSuccess?.()
+
       setMessages((prev) => [
         ...prev,
         {
@@ -62,7 +66,10 @@ export function useResumeUpload({
           id: `bot-${Date.now()}`,
           sender: 'assistant',
           text: res.reply,
-          quickReplies: res.quick_replies,
+          quickReplies: [
+            '🎮 Open Gamified Level Map',
+            ...(res.quick_replies || []),
+          ],
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         },
       ])
@@ -94,7 +101,7 @@ export function useResumeUpload({
         } catch {
           // initial profile in store
         }
-        navigate('/home', { replace: true })
+        // Do not auto-redirect; let the user explore their newly unlocked Gamified Level Map!
       }
     } catch (err: unknown) {
       setUploadError(err instanceof Error ? err.message : 'Failed to parse resume.')
@@ -103,5 +110,12 @@ export function useResumeUpload({
     }
   }
 
-  return { isUploading, uploadError, setUploadError, handleFileUpload }
+  return {
+    isUploading,
+    uploadError,
+    setUploadError,
+    handleFileUpload,
+    resumeAnalyzed,
+    setResumeAnalyzed,
+  }
 }

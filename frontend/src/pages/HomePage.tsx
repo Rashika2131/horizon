@@ -40,6 +40,7 @@ import HomeShortcutCards from '@/components/home/HomeShortcutCards'
 // Universal Tools & Modals
 import RoleSelectorModal, { ARCHETYPES } from '@/components/dashboard/RoleSelectorModal'
 import AICareerCopilot from '@/components/dashboard/AICareerCopilot'
+import CandyCrushLevelMap from '@/components/gamification/CandyCrushLevelMap'
 
 // Role-specific customized dashboard configuration
 const ROLE_DASHBOARD_CONFIG: Record<
@@ -599,6 +600,15 @@ export default function HomePage() {
             </span>
           )}
 
+          <a
+            href="#gamified-level-map"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-pink-500/15 via-purple-500/15 to-indigo-500/15 hover:from-pink-500/25 hover:to-purple-500/25 border border-pink-400/50 text-pink-700 dark:text-pink-300 text-xs font-black transition-all shadow-2xs hover:scale-105 active:scale-95 cursor-pointer"
+          >
+            <Sparkles size={13} className="text-pink-500" />
+            <span>🎮 5-Level Journey</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse" />
+          </a>
+
           <button
             onClick={() => setRoleModalOpen(true)}
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-gradient-to-r from-blue-50 to-orange-50 dark:from-slate-800 dark:to-slate-800/90 border border-blue-200/80 dark:border-slate-700 hover:border-[#0B4F9C] text-xs font-bold text-slate-800 dark:text-slate-200 transition-all shadow-2xs cursor-pointer hover:shadow-xs"
@@ -609,6 +619,49 @@ export default function HomePage() {
           </button>
         </div>
       </div>
+
+      {/* ── 1B. ACTIVE GAMIFIED LEVEL MAP HIGHLIGHT BANNER ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-pink-600 via-purple-700 to-indigo-800 text-white shadow-xl border border-pink-400/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative overflow-hidden"
+      >
+        <div className="absolute top-0 right-0 w-80 h-80 bg-yellow-400/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex items-center gap-3.5 relative z-10">
+          <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-yellow-300 shadow-md shrink-0 border border-white/30">
+            <Sparkles size={24} className="animate-spin-slow" />
+          </div>
+
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-yellow-400 text-slate-950 font-bold shadow-xs">
+                🎮 Candy Crush Journey Active
+              </span>
+              <span className="text-xs text-pink-200 font-bold hidden sm:inline">
+                5 Tailored Levels for {currentArchetypeInfo.title}
+              </span>
+            </div>
+
+            <h3 className="text-base sm:text-lg font-black text-white leading-tight">
+              Unlock Your Target Career & Salary Band with 5-Level Milestones
+            </h3>
+            <p className="text-xs text-pink-100 max-w-xl">
+              Solve interactive skill quizzes, check off deliverables, and level up with zero career penalty.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2.5 relative z-10 shrink-0 self-stretch md:self-auto justify-end">
+          <a
+            href="#gamified-level-map"
+            className="px-5 py-2.5 rounded-2xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs shadow-lg shadow-yellow-500/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer"
+          >
+            <span>Play Level Map 🎮</span>
+            <ArrowRight size={14} />
+          </a>
+        </div>
+      </motion.div>
 
       {/* ── 2. HERO COCKPIT BANNER (100% Dynamically Customized For Active Persona) ── */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0B4F9C]/10 via-orange-500/10 to-blue-600/5 dark:from-blue-950/40 dark:via-orange-950/20 dark:to-slate-900 border border-blue-200/80 dark:border-blue-900/60 shadow-xs p-6 sm:p-7">
@@ -677,6 +730,9 @@ export default function HomePage() {
           })}
         </div>
       </div>
+
+      {/* ── 2A. CANDY CRUSH GAMIFIED CAREER LEVEL PROGRESSION (For ALL 5 Personas) ── */}
+      <CandyCrushLevelMap userType={userType} />
 
       {/* ── 2B. GIG WORKER EXCLUSIVE RAPID COCKPIT STRIP ── */}
       {userType === 'gig' && (

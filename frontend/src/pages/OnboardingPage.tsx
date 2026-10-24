@@ -12,6 +12,7 @@ import Step4Goals from '@/components/onboarding/Step4Goals'
 import type { GoalsFormData } from '@/components/onboarding/Step4Goals'
 import AnalysingScreen from '@/components/onboarding/AnalysingScreen'
 import ConversationalOnboarding from '@/components/onboarding/ConversationalOnboarding'
+import CandyCrushLevelMap from '@/components/gamification/CandyCrushLevelMap'
 import { profileApi } from '@/lib/api'
 import { useProfileStore } from '@/store/profileStore'
 import { useAuthStore } from '@/store/authStore'
@@ -34,6 +35,7 @@ export default function OnboardingPage() {
 
   const [step, setStep] = useState<number>(1)
   const [isAnalysing, setIsAnalysing] = useState<boolean>(false)
+  const [showPostAnalysisMap, setShowPostAnalysisMap] = useState<boolean>(false)
   const [userType, setUserType] = useState<UserType>('returner')
 
   // Form starts empty (not hardcoded to demo persona)
@@ -163,8 +165,8 @@ export default function OnboardingPage() {
       })
 
       setProfile(created)
-      // Navigate to /home per ux.md
-      navigate('/home')
+      setIsAnalysing(false)
+      setShowPostAnalysisMap(true)
     } catch {
       // Fallback local profile if offline
       const fallback: Profile = {
@@ -184,12 +186,40 @@ export default function OnboardingPage() {
         updated_at: new Date().toISOString(),
       }
       setProfile(fallback)
-      navigate('/home')
+      setIsAnalysing(false)
+      setShowPostAnalysisMap(true)
     }
   }
 
   if (isAnalysing) {
     return <AnalysingScreen onComplete={handleAnalysisComplete} />
+  }
+
+  if (showPostAnalysisMap) {
+    return (
+      <div className="max-w-4xl mx-auto py-6 px-4 space-y-6">
+        <div className="p-6 rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/20 text-white border border-white/30">
+              AI Calibration Complete
+            </span>
+            <h2 className="text-2xl font-black mt-1">🎉 Your Gamified Career Journey is Unlocked!</h2>
+            <p className="text-xs text-blue-100 max-w-xl mt-1">
+              Based on your skills & goals, Level 1 challenge is ready. Complete it to unlock Level 2 or proceed to your dashboard.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate('/home')}
+            className="px-6 py-3 rounded-2xl bg-white text-[#0B4F9C] font-black text-xs hover:bg-blue-50 transition shadow-lg flex items-center gap-2 shrink-0 cursor-pointer"
+          >
+            <span>Proceed to Dashboard</span>
+            <ArrowRight size={16} />
+          </button>
+        </div>
+        <CandyCrushLevelMap userType={userType} compact={false} />
+      </div>
+    )
   }
 
   return (

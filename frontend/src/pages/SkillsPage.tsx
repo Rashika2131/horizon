@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, RefreshCw, Zap } from 'lucide-react'
+import { ArrowRight, RefreshCw, Zap, Sparkles } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useActiveProfile } from '@/hooks/useActiveProfile'
 import { useSkillGap } from '@/hooks/useSkillGap'
 import { useUserProfile } from '@/store/userProfileStore'
+import { useGamificationStore } from '@/store/gamificationStore'
+import { getPersonaKey } from '@/data/gamificationLevels'
 import SkillCategorizationCards from '@/components/skillgap/SkillCategorizationCards'
 import HiddenStrengthsCard from '@/components/skillgap/HiddenStrengthsCard'
 import Skeleton from '@/components/common/Skeleton'
@@ -37,6 +39,13 @@ export default function SkillsPage() {
     isLoading,
   } = useSkillGap(selectedRole)
 
+  const stagnantGoal = useGamificationStore((s) => s.stagnantGoal)
+  const getProgress = useGamificationStore((s) => s.getProgress)
+  const personaKey = getPersonaKey(profile?.user_type || 'stagnant', stagnantGoal)
+  const gamificationProgress = getProgress(personaKey)
+  const lastLevel1Result = gamificationProgress.lastQuizResult?.[1]
+  const hasLevel1Gap = lastLevel1Result && !lastLevel1Result.isPassed
+
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-12">
       {/* 1. Header */}
@@ -58,6 +67,41 @@ export default function SkillsPage() {
           <ArrowRight size={14} />
         </Link>
       </div>
+
+      {/* Gamification Level 1 Skill Gap Notice (when user was redirected from Level Quiz) */}
+      {hasLevel1Gap && (
+        <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-amber-500/15 via-rose-500/10 to-orange-500/10 border border-amber-300 dark:border-amber-800/80 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+              <Sparkles size={20} className="animate-spin-slow" />
+            </div>
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500 text-slate-950">
+                  Level 1 Assessment Gap Identified
+                </span>
+                <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
+                  Candy Crush Journey
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                Critical Promotion / Switch Deficit: Focus on Missing Architectural & Modern Skills
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-2xl">
+                Review your required skills breakdown below. Once you understand the concepts, return to your Home dashboard to retake the Level 1 Quiz and unlock Level 2!
+              </p>
+            </div>
+          </div>
+
+          <Link
+            to="/home"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white text-xs font-black shrink-0 shadow-md transition flex items-center gap-1.5 self-start sm:self-auto"
+          >
+            <span>Retake Level 1 Challenge 🎮</span>
+            <ArrowRight size={13} />
+          </Link>
+        </div>
+      )}
 
       {/* 2. Match % Card + Role Selector */}
       <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-5">

@@ -139,7 +139,13 @@ export function useOnboardingAgent() {
     setCanConfirm,
   } = useSessionRestore({ authUser })
 
-  const { isUploading, uploadError, handleFileUpload } = useResumeUpload({
+  const {
+    isUploading,
+    uploadError,
+    handleFileUpload,
+    resumeAnalyzed,
+    setResumeAnalyzed,
+  } = useResumeUpload({
     setProfileDraft,
     setCanConfirm,
     setMessages,
@@ -226,7 +232,8 @@ export function useOnboardingAgent() {
           // initial profileObj already in store
         }
 
-        navigate('/home', { replace: true })
+        // Analysis complete / confirmed -> Open Gamified Level Map screen (do not auto-redirect away!)
+        setShowConfirmScreen(true)
         return
       }
     } catch {
@@ -280,6 +287,10 @@ export function useOnboardingAgent() {
     setMessages([createInitMsg()])
   }
 
+  const handleProceedToDashboard = () => {
+    navigate('/home', { replace: true })
+  }
+
   return {
     messages,
     inputMessage,
@@ -297,5 +308,8 @@ export function useOnboardingAgent() {
     handleSendMessage,
     handleFileUpload,
     handleStartOver,
+    resumeAnalyzed,
+    setResumeAnalyzed,
+    handleProceedToDashboard,
   }
 }

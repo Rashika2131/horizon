@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { CheckCircle2, RefreshCw, ArrowRight } from 'lucide-react'
+import { CheckCircle2, RefreshCw, ArrowRight, Trophy, UserCheck } from 'lucide-react'
 import type { Profile } from '@/types'
 import { useActiveProfile } from '@/hooks/useActiveProfile'
 import { ARCHETYPE_BADGES } from './types'
+import CandyCrushLevelMap from '@/components/gamification/CandyCrushLevelMap'
 
 interface ConfirmScreenProps {
   profileDraft: Partial<Profile>
@@ -17,6 +19,7 @@ export default function ConfirmScreen({
   onBackToChat,
   isFinalizing,
 }: ConfirmScreenProps) {
+  const [activeTab, setActiveTab] = useState<'profile' | 'levels'>('levels')
   const { profile: activeProfile, isDemo } = useActiveProfile()
   const gapVal = isDemo ? (activeProfile?.career_gap_years ?? 4) : profileDraft.career_gap_years
   const isClassified = !!profileDraft.user_type && profileDraft.user_type !== 'detecting'
@@ -25,9 +28,10 @@ export default function ConfirmScreen({
     : 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800'
 
   const skillsCount = profileDraft.skills_raw?.length || 0
+  const userType = profileDraft.user_type || 'stagnant'
 
   return (
-    <div className="max-w-2xl mx-auto py-8 px-4 sm:px-6">
+    <div className="max-w-4xl mx-auto py-6 px-3 sm:px-6">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -39,76 +43,109 @@ export default function ConfirmScreen({
             <CheckCircle2 size={30} />
           </div>
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-            Your Profile is Ready!
+            Your Profile is Calibrated!
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto">
-            We've calibrated your background and mapped your skills. Ready to see your Career Risk Score?
+            We've analyzed your career background and unlocked your personalized 5-Level Candy Crush journey.
           </p>
-        </div>
 
-        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200/60 dark:border-slate-800 space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-800 pb-3">
-            <div>
-              <span className="text-sm font-bold text-slate-900 dark:text-white block">
-                {profileDraft.name || 'Candidate'}
-              </span>
-              <span className="text-xs text-slate-400">{profileDraft.city || 'India'}</span>
-            </div>
-            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeClass}`}>
-              {isClassified ? profileDraft.user_type!.toUpperCase() : 'Detecting…'}
-            </span>
-          </div>
+          {/* Tab Selector */}
+          <div className="inline-flex p-1 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-inner mt-2">
+            <button
+              type="button"
+              onClick={() => setActiveTab('profile')}
+              className={`px-4 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeTab === 'profile'
+                  ? 'bg-white dark:bg-slate-700 text-[#0B4F9C] dark:text-white shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <UserCheck size={13} />
+              <span>Profile Summary</span>
+            </button>
 
-          <div className="grid grid-cols-2 gap-3 text-xs">
-            <div>
-              <span className="text-[10px] font-medium text-slate-400 block">Current Role</span>
-              <span className="font-bold text-slate-800 dark:text-slate-200">
-                {profileDraft.current_role || 'Not specified'}
-              </span>
-            </div>
-            <div>
-              <span className="text-[10px] font-medium text-slate-400 block">Target Role</span>
-              <span className="font-bold text-[#0B4F9C] dark:text-sky-400">
-                {profileDraft.target_role || 'Software Engineer'}
-              </span>
-            </div>
-            <div>
-              <span className="text-[10px] font-medium text-slate-400 block">Experience</span>
-              <span className="font-semibold text-slate-700 dark:text-slate-300">
-                {profileDraft.experience_years || 0} years
-              </span>
-            </div>
-            <div>
-              <span className="text-[10px] font-medium text-slate-400 block">Career Gap</span>
-              <span className="font-semibold text-slate-700 dark:text-slate-300">
-                {gapVal ? `${gapVal} ${gapVal === 1 ? 'year' : 'years'}` : 'None'}
-              </span>
-            </div>
-          </div>
-
-          <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800 space-y-1.5">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-              {skillsCount} {skillsCount === 1 ? 'skill' : 'skills'}
-              {skillsCount < 3 && (
-                <span className="ml-1 text-amber-500 font-normal normal-case">(add at least 3)</span>
-              )}
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              {profileDraft.skills_raw && profileDraft.skills_raw.length > 0 ? (
-                profileDraft.skills_raw.map((s, i) => (
-                  <span
-                    key={i}
-                    className="px-2 py-0.5 rounded-lg bg-sky-100/70 dark:bg-slate-700 text-[#0B4F9C] dark:text-sky-300 font-bold text-[11px]"
-                  >
-                    {s}
-                  </span>
-                ))
-              ) : (
-                <span className="text-xs text-slate-400 italic">Core skills calibrated</span>
-              )}
-            </div>
+            <button
+              type="button"
+              onClick={() => setActiveTab('levels')}
+              className={`px-4 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeTab === 'levels'
+                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Trophy size={13} />
+              <span>🎮 Preview Level Map</span>
+            </button>
           </div>
         </div>
+
+        {activeTab === 'profile' ? (
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200/60 dark:border-slate-800 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-800 pb-3">
+              <div>
+                <span className="text-sm font-bold text-slate-900 dark:text-white block">
+                  {profileDraft.name || 'Candidate'}
+                </span>
+                <span className="text-xs text-slate-400">{profileDraft.city || 'India'}</span>
+              </div>
+              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeClass}`}>
+                {isClassified ? profileDraft.user_type!.toUpperCase() : 'Detecting…'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div>
+                <span className="text-[10px] font-medium text-slate-400 block">Current Role</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200">
+                  {profileDraft.current_role || 'Not specified'}
+                </span>
+              </div>
+              <div>
+                <span className="text-[10px] font-medium text-slate-400 block">Target Role</span>
+                <span className="font-bold text-[#0B4F9C] dark:text-sky-400">
+                  {profileDraft.target_role || 'Software Engineer'}
+                </span>
+              </div>
+              <div>
+                <span className="text-[10px] font-medium text-slate-400 block">Experience</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-300">
+                  {profileDraft.experience_years || 0} years
+                </span>
+              </div>
+              <div>
+                <span className="text-[10px] font-medium text-slate-400 block">Career Gap</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-300">
+                  {gapVal ? `${gapVal} ${gapVal === 1 ? 'year' : 'years'}` : 'None'}
+                </span>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800 space-y-1.5">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                {skillsCount} {skillsCount === 1 ? 'skill' : 'skills'}
+                {skillsCount < 3 && (
+                  <span className="ml-1 text-amber-500 font-normal normal-case">(add at least 3)</span>
+                )}
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {profileDraft.skills_raw && profileDraft.skills_raw.length > 0 ? (
+                  profileDraft.skills_raw.map((s, i) => (
+                    <span
+                      key={i}
+                      className="px-2 py-0.5 rounded-lg bg-sky-100/70 dark:bg-slate-700 text-[#0B4F9C] dark:text-sky-300 font-bold text-[11px]"
+                    >
+                      {s}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-xs text-slate-400 italic">Core skills calibrated</span>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <CandyCrushLevelMap userType={userType} compact={false} />
+        )}
 
         <div className="space-y-3 pt-2">
           <button
@@ -116,7 +153,7 @@ export default function ConfirmScreen({
             id="confirm-go-home-btn"
             onClick={onFinish}
             disabled={isFinalizing}
-            className="w-full py-4 px-6 rounded-2xl bg-[#0B4F9C] text-white font-extrabold text-sm hover:bg-[#083b75] transition-all shadow-xl shadow-blue-900/20 flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99]"
+            className="w-full py-4 px-6 rounded-2xl bg-[#0B4F9C] text-white font-extrabold text-sm hover:bg-[#083b75] transition-all shadow-xl shadow-blue-900/20 flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
           >
             {isFinalizing ? (
               <>
@@ -125,7 +162,7 @@ export default function ConfirmScreen({
               </>
             ) : (
               <>
-                <span>Go to Home</span>
+                <span>Go to Home Dashboard & Continue Levels</span>
                 <ArrowRight size={17} />
               </>
             )}
@@ -135,7 +172,7 @@ export default function ConfirmScreen({
             <button
               type="button"
               onClick={onBackToChat}
-              className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 underline transition-colors"
+              className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 underline transition-colors cursor-pointer"
             >
               ← Back to chat to make changes
             </button>
