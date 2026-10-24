@@ -1,0 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Punarshuru Design Tokens */
+  --color-brand-blue: #0B4F9C;
+  --color-brand-orange: #F26B1D;
+  --color-brand-sky: #E8F3FF;
+  --color-ink: #0F172A;
+  --color-muted: #64748B;
+  --color-surface: #F8FAFC;
+  --color-border: #E2E8F0;
+  --color-slate-850: #131c2e;
+
+  --font-heading: 'Montserrat', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+
+  --shadow-soft: 0 4px 24px rgba(11, 79, 156, 0.08);
+  --shadow-glow: 0 0 40px rgba(242, 107, 29, 0.15);
+}
+
+/* Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: #F8FAFC;
+  background-image: 
+    radial-gradient(at 15% 15%, rgba(11, 79, 156, 0.04) 0px, transparent 50%),
+    radial-gradient(at 85% 25%, rgba(242, 107, 29, 0.04) 0px, transparent 50%),
+    radial-gradient(at 50% 80%, rgba(232, 243, 255, 0.5) 0px, transparent 60%);
+  background-attachment: fixed;
+  color: #0F172A;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Dark mode override when .dark class is added to html */
+.dark body {
+  background-color: #080F1A;
+  background-image:
+    radial-gradient(at 20% 20%, rgba(11, 79, 156, 0.15) 0px, transparent 50%),
+    radial-gradient(at 80% 30%, rgba(242, 107, 29, 0.10) 0px, transparent 50%);
+  color: #E2E8F0;
+}
+
+/* Gradient mesh hero background for light & dark */
+.gradient-mesh {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 30%, rgba(11, 79, 156, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 85% 65%, rgba(242, 107, 29, 0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 80% at 50% -10%, rgba(232, 243, 255, 0.9) 0%, transparent 70%);
+}
+
+.dark .gradient-mesh {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 40%, rgba(11, 79, 156, 0.2) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 70%, rgba(242, 107, 29, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 100% at 50% 0%, rgba(15, 23, 42, 0.8) 0%, transparent 70%);
+}
+
+/* Glassmorphism card */
+.glass {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 4px 20px -2px rgba(11, 79, 156, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+}
+
+.glass-dark {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(242, 107, 29, 0.25); }
+  50% { box-shadow: 0 0 0 12px rgba(242, 107, 29, 0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Utility */
+.text-gradient {
+  background: linear-gradient(135deg, #0B4F9C, #F26B1D);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
